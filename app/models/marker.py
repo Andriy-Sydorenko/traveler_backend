@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from sqlalchemy import UUID, Column, DateTime, Float, String, func
+from sqlalchemy import UUID, Column, DateTime, Float, ForeignKey, String, func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -26,6 +26,7 @@ class Marker(Base):
         nullable=False,
     )
 
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="markers")
 
     """

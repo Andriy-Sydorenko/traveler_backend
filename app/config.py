@@ -14,14 +14,14 @@ class Settings(BaseSettings):
     postgres_password: str = "password"
 
     jwt_secret: str = os.urandom(32).hex()
+    jwt_encrypt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 60 * 24 * 7
 
     cloudinary_cloud_name: str = "CLOUDINARY_CLOUD_NAME"
     cloudinary_api_key: str = "CLOUDINARY_API_KEY"
     cloudinary_api_secret: str = "CLOUDINARY_API_SECRET"
 
     allowed_hosts: list[str] = ["*"]
-
-    token_expire_minutes: int = 60 * 24  # TODO: temporary
 
     @property
     def db_creds(self) -> str:
@@ -42,4 +42,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(settings.__dict__)

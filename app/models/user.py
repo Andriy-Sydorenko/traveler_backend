@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from sqlalchemy import UUID, Boolean, Column, DateTime, String, func
+from sqlalchemy.orm import relationship
 
 from app.database import Base
 
@@ -20,6 +21,10 @@ class User(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    markers = relationship(
+        "Marker", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<User {self.email}>"
