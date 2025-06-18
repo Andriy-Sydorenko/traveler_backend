@@ -1,5 +1,7 @@
 import os
 
+import cloudinary
+from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings
 
 
@@ -25,15 +27,17 @@ class Settings(BaseSettings):
 
     @property
     def db_creds(self) -> str:
-        return f"{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        return str(
+            f"{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        )
 
     @property
     def async_db_url(self) -> str:
-        return f"postgresql+asyncpg://{self.db_creds}"
+        return str(PostgresDsn(f"postgresql+asyncpg://{self.db_creds}"))
 
     @property
     def sync_db_url(self) -> str:
-        return f"postgresql://{self.db_creds}"
+        return str(PostgresDsn(f"postgresql://{self.db_creds}"))
 
     class Config:
         env_file = ".env"
@@ -42,3 +46,9 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+cloudinary.config(
+    cloud_name=settings.cloudinary_cloud_name,
+    api_key=settings.cloudinary_api_key,
+    api_secret=settings.cloudinary_api_secret,
+)

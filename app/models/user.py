@@ -1,7 +1,8 @@
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from sqlalchemy import UUID, Boolean, Column, DateTime, String, func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from app.database import Base
 
@@ -28,3 +29,10 @@ class User(Base):
 
     def __repr__(self):
         return f"<User {self.email}>"
+
+    @validates("url")
+    def validate_url(self, key, value):
+        result = urlparse(value)
+        if not result.scheme or not result.netloc:
+            raise ValueError("Invalid URL")
+        return value

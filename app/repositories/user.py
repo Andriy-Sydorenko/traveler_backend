@@ -49,6 +49,7 @@ class UserRepository:
         for key, value in data.items():
             setattr(user, key, value)
         await self.session.commit()
+        # TODO: in-place user instance update, consider removing return statement, although can be useful later
         await self.session.refresh(user, attribute_names=selected_fields)
         return user
 

@@ -17,7 +17,7 @@ from app.services.user import UserService
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register")
+@router.post("/register/")
 async def register(
     register_data: UserRegister, db: Annotated[AsyncSession, Depends(get_db)]
 ) -> UserRegisterResponse:
@@ -28,7 +28,7 @@ async def register(
     return UserRegisterResponse.model_validate(user)
 
 
-@router.post("/login")
+@router.post("/login/")
 async def login(
     login_data: UserLogin,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -49,9 +49,9 @@ async def login(
     return UserLoginResponse(token=token)
 
 
-@router.post("/logout")
+@router.post("/logout/")
 async def logout(
-    token: Annotated[str, Depends(auth_service.decode_jwt)], response: Response
+    user_id: Annotated[str, Depends(auth_service.decode_jwt)], response: Response
 ):
     response.delete_cookie(
         key="token",

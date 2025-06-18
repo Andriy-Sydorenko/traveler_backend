@@ -13,9 +13,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 class AuthService:
 
     @staticmethod
-    def generate_jwt_token(user_uuid: str) -> str:
+    def generate_jwt_token(user_id: str) -> str:
         payload = {
-            "user_uuid": user_uuid,
+            "user_id": user_id,
             "exp": datetime.datetime.now(datetime.timezone.utc)
             + datetime.timedelta(minutes=settings.jwt_access_token_expire_minutes),
         }
@@ -30,8 +30,8 @@ class AuthService:
             payload = jwt.decode(
                 token, settings.jwt_secret, algorithms=[settings.jwt_encrypt_algorithm]
             )
-            user_uuid: str = payload["user_uuid"]
-            return user_uuid
+            user_id: str = payload["user_id"]
+            return user_id
         except (KeyError, ValueError):
             raise jwt.InvalidTokenError
         except jwt.ExpiredSignatureError:

@@ -2,8 +2,8 @@ from contextlib import suppress
 from typing import Any, Union
 
 from argon2 import PasswordHasher
-from fastapi import Request
-from fastapi.exceptions import RequestValidationError
+from fastapi import Request, UploadFile
+from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
@@ -42,8 +42,11 @@ class ErrorFormatter:
     @staticmethod
     def _create_user_friendly_message(error: dict[str, Any]) -> str:
         error_type = error.get("type", "")
+        input_type = ErrorFormatter._extract_field_name(error)
 
-        if error.get("input") is None:
+        if input_type == "file":
+            return "Request doesn't contain any files attached."
+        elif error.get("input") is None:
             return "Request body is empty"
         elif error_type == "missing":
             return "This field is required"
@@ -78,3 +81,28 @@ async def validation_exception_handler(
     return JSONResponse(
         status_code=422, content=ErrorFormatter.format_validation_error(exc)
     )
+
+
+def clean_file_entry(file: UploadFile) -> UploadFile:
+    if not file:
+        raise HTTPException(
+            status_code=400,
+            detail="No file provided",
+        )
+    file_size = convert_bytes_to_mb(file.size)
+    if file_size > 2.0:
+        raise HTTPException(
+            status_code=400,
+            detail="File size exceeds 2 MB limit",
+        )
+
+    return file
+
+
+def convert_bytes_to_mb(file_size: float) -> float:
+    """
+    1 MB = 1000^2 bytes
+    1 MiB = 1024^2 bytes
+    https://stackoverflow.com/questions/2365100/converting-bytes-to-megabytes
+    """
+    return float(file_size / (1000**2))
